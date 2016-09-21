@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<title>音乐播放器</title>
+	<style>
+		body{
+			background-size: 100%;			
+			font-family:Arial, Helvetica, sans-serif;
+			padding:0;
+			font-size:20px;
+			margin:0px auto auto auto;
+			color:#000000;
+		}
+		li{
+			list-style-type:none;
+			margin:6px;
+			font-family: Microsoft YaHei;
+		}
+		ul{
+			font-family: Microsoft YaHei;
+			background-color: #CCFFFF
+		}
+		a{
+			text-decoration:none;
+			color:black;
+			font-family: Microsoft YaHei;
+		}
+		input{
+			font-family: Microsoft YaHei;
+			color:#6F605A;
+			background:#CCFFFF;
+		}
+		#musicTitle{
+			font-family: Microsoft YaHei;
+			font-size:40px;
+			color:#000066;
+		}
+		#top{
+			font-family: SimHei;
+			font-size:25px; 
+			margin:15px;
+		}
+	</style>
+    <script src="{{url_for('static', filename='jquery-1-7-2.js')}}"></script>
+	<script type=text/javascript>
+		var $SCRIPT_ROOT = {{request.script_root|tojson|safe}};
+	</script>
+    
+	<script>
+
+		//音乐资源
+		var myMusics = new Array(
+			{src:"红玫瑰.mp3",title:"红玫瑰"},
+			{src:"想自由.mp3",title:"想自由"},
+			{src:"频率.mp3",title:"频率"},
+			{src:"半岛铁盒.mp3",title:"半岛铁盒"},
+			{src:"稻香.mp3",title:"稻香"},
+			{src:"双截棍.mp3",title:"双截棍"},
+			{src:"听妈妈的话.mp3",title:"听妈妈的话"},
+			{src:"阳光宅男.mp3",title:"阳光宅男"}
+		);	
+		//数组下标
+		var index = {{ getindex }}-2
+	
+		//$(document).ready(function){
+		//	index = parseInt($("#musicnow").text());
+		//}
+		//var fso, f;
+    	//fso= new ActiveXObject("Scripting.FileSystemObject");
+		//f=fso.OpenTextFile("now_music.txt",1);
+		//var index = parseInt(f.readAll());
+		//f.Close()
+
+		//$(document).ready(function(){
+  		//	index = parseInt(($.ajax({url:"now_music.txt",async:false})).responseText);
+		//});
+
+		var playState = 1;
+		//创建音乐列表
+		function createBox(){
+			var html="";
+			for(var i=0;i<myMusics.length;i++){
+				html+="<li>"+(i+1)+"  <a href='javascript:clickName("+i+");'>"+myMusics[i].title+"</a></li>"
+			}
+			return html
+		}
+		//页面加载		
+		$(document).ready(function(){
+
+			$("#"+"box").append(createBox());
+			playMusic(1);
+			
+			//按钮"下一首"单击事件
+			$("#nextMusic").click(function(){
+				playMusic(1,1);
+			});
+            
+			//按钮"上一首"单击事件
+			$("#lastMusic").click(function(){
+				playMusic(2);
+			});
+                     
+			////按钮"播放/暂停"单击事件
+			$("#playMusic").click(function(){
+				clickName(index);
+			}); 
+
+			$("li").mouseover(function(){
+				$(this).css("background-color","green");
+			});
+			
+			$("li").mouseout(function(){
+				$(this).css("background-color","");
+				$($("li")[index]).css("background-color","");
+			});
+			
+		});
+
+		//点击名字播放音乐
+		function clickName(i){
+			index=i;
+			playMusic(0);
+		}
+		
+		//音乐播放
+		function playMusic(s,n){
+			$("#playMusic").val("暂停/播放");
+			if(s==0){//点击名字播放音乐
+			
+			}else if(s==1){//下一首
+				$("#playMusic").val("暂停/播放");
+				if(playState==0){//单曲循环
+					if(n==0){
+					
+					}else if(n==1){
+						index++;
+						if(index>=myMusics.length){
+							index=0;
+						}
+					}
+				}else if(playState==1){//列表循环
+					index++;
+					if(index>=myMusics.length){
+						index=0;
+					}
+				}else if(playState==2){//随机播放
+					index = Math.floor(Math.random()*myMusics.length);
+				}
+			}else if(s==2){//上一首
+				index--;
+				if(index<0){
+					index=myMusics.length-1;
+				}
+			}
+			
+			
+			//修改audio资源路径
+			$("#media").attr("src",myMusics[index].src);
+			//音乐播放
+			$("#media").play;
+			//显示音乐名称
+			$("#musicTitle").text(myMusics[index].title);
+			$("title").text(myMusics[index].title);
+			//重置li列表背景色
+			$("#box").children("li").css("background-color","");
+			$("#box").children("li").css("font-weight","normal");
+			
+			//修改播放音乐背景色
+			$($("#box").children("li")[index]).css("background-color","");
+			$($("#box").children("li")[index]).css("font-weight","bold");
+			
+			$("#sliding").offset({left:60});
+		}
+		
+	</script>
+</head>
+	
+	<body background='/static/new.jpg'>
+		<audio id ="media" src ="" autoplay="autoplay" onended="playMusic(1,0)" ontimeupdate="timeupdate()" ></audio>
+		<p id ="top" style = "margin-left:0px;margin-top:0px;width:100%;height:30px;background:#FFD2D2;">&nbsp&nbsp&nbsp&nbsp&nbsp浙江大学·音乐播放器</p>
+		<div style="float:center;margin-left:400px;width:450px;height:200px;">
+				
+				<p id = "musicTitle"></p>
+				<!--<p id = "musicnow">{{ getindex }}</p>-->
+                
+				<input style = "margin:15px" id="lastMusic" type="button" value="上一首" />
+				<!--<input id="voiceadd" type="button" value="音量加" />-->
+				<input style = "margin:15px" id="playMusic" type="button" value="暂停/播放" />
+				<!--<input id="voicered" type="button" value="音量减" />-->
+				<input style = "margin:15px" id="nextMusic" type="button" value="下一首" />
+				
+
+				<ul id="box" style="border:1px solid black;border-radius:20px;padding:0px;height:300px;width:300px;overflow-y:auto;">
+					
+				</ul>
+		</div>
+	</body>
+</html>
